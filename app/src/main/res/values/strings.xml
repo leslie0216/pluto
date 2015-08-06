@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">Pluto</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="enable_p2p_button">WiFi Settings</string>
+    <string name="discover_peers_button">Discover</string>
+    <string name="connect_peer_button">Connect</string>
+    <string name="disconnect_peer_button">Disconnect</string>
+    <string name="get_file_button">Launch Gallery</string>
+    <string name="empty"></string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="client_text">This device will act as a client. Click on Gallery button to pick a local(stored) file</string>
+    <string name="empty_message">No devices found. Turn on P2P and perform discovery from the Action Bar</string>
+    <string name="p2p_off_warning">Enable P2P from action bar button above or system settings</string>
+    <string name="group_owner_text">"Am I the Group Owner? "</string>
+    <string name="label_me">ME</string>
+    <string name="label_peers">PEERS</string>
+
+    <string name="receiving">Receiving...</string>
+    <string name="sending">Sending...</string>
+    <string name="finding">Finding</string>
+    <string name="connectingTo">Connecting to</string>
+    <string name="bluetoothEnableFailed">Bluetooth is not enable on your device</string>
+    <string name="bluetoothNotSupport">Bluetooth not supported on device</string>
+    <string name="warningMsg">Do you want to exit?</string>
+    <string name="warningTitle">Warning</string>
+    <string name="bluetoothSeverNotFound">Can not find server!</string>
+    <string name="inaccurate">Inaccurate</string>
+    <string name="noMsg">No Message</string>
+    <string name="selectFile">Select File</string>
+    <string name="connected">Connected</string>
+    <string name="notConnected">Not Connected</string>
+    <string name="connecting">Connecting</string>
+    <string name="title_activity_server">ServerActivity</string>
+    <string name="connectedCnt">Connected Count</string>
+    <string name="serverName">Server Name</string>
+    <string name="peerNotFound">Can not find the target!</string>
+</resources>
