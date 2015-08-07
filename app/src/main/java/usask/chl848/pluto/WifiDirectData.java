@@ -37,19 +37,21 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
     private boolean m_isWifiP2pEnabled = false;
     private boolean m_retryChannel = false;
 
+    private boolean m_isDiscovering = false;
+
     Handler m_timerDiscoveryHandler = new Handler();
     Runnable m_timerDiscoveryRunnable = new Runnable() {
         @Override
         public void run() {
             m_activity.showToast(m_activity.getResources().getString(R.string.peerNotFound));
+            m_activity.stopProgressDialog();
+            m_activity.setIsBusy(false);
 
             m_wifiP2pManager.stopPeerDiscovery(m_channel, new WifiP2pManager.ActionListener() {
 
                 @Override
                 public void onSuccess() {
                     // WiFiDirectBroadcastReceiver will notify us. Ignore for now.
-                    m_activity.stopProgressDialog();
-                    m_activity.setIsBusy(false);
                 }
 
                 @Override
@@ -70,6 +72,7 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
         m_intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
         m_intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
         m_intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+        m_intentFilter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
         m_intentFilter.addAction(MainActivity.REQUEST_DISCONNECT_ACTION);
 
         m_wifiP2pManager = (WifiP2pManager)m_activity.getSystemService(Context.WIFI_P2P_SERVICE);
@@ -83,6 +86,14 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
 
     public boolean getIsWifiP2pEnabled() {
         return m_isWifiP2pEnabled;
+    }
+
+    public void setIsDiscovering(boolean isDiscovering){
+        m_isDiscovering = isDiscovering;
+    }
+
+    public boolean getIsDiscovering() {
+        return m_isDiscovering;
     }
 
     public void setRemoteDeviceAddress(String address) {
@@ -140,6 +151,7 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
             public void onFailure(int reasonCode) {
                 Toast.makeText(m_activity, "Discovery Failed : " + reasonCode,
                         Toast.LENGTH_SHORT).show();
+                m_activity.setIsBusy(false);
             }
         });
     }
@@ -160,11 +172,13 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
             @Override
             public void onFailure(int reason) {
                 Toast.makeText(m_activity, "Connect failed. Retry." + reason, Toast.LENGTH_SHORT).show();
+                m_activity.setIsBusy(false);
             }
         });
     }
 
     public void disconnect() {
+        Log.d(MainActivity.TAG, "Disconnect()");
         m_wifiP2pManager.removeGroup(m_channel, new WifiP2pManager.ActionListener() {
 
             @Override
@@ -218,18 +232,19 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
         List<WifiP2pDevice> deviceList = new ArrayList<>();
         deviceList.addAll(peerList.getDeviceList());
 
-        boolean bFound = false;
         for (WifiP2pDevice device : deviceList) {
+            Log.d(MainActivity.TAG, "devices found : " + device.deviceName);
             if (device.deviceAddress.equals(getRemoteDeviceAddress())) {
                 m_activity.stopProgressDialog();
                 m_activity.showProgressDialog("", m_activity.getResources().getString(R.string.connectingTo) + " " + getRemoteDeviceAddress(), true, false);
-                bFound = true;
+                Log.d(MainActivity.TAG, "target device found");
+                m_activity.showToast("target device found");
                 connect();
                 break;
             }
         }
 
-        if (!bFound) {
+        if (deviceList.isEmpty()) {
             Toast.makeText(m_activity, "No devices found", Toast.LENGTH_SHORT).show();
             Log.d(MainActivity.TAG, "No devices found");
         }

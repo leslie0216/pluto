@@ -161,6 +161,36 @@ public class ClientView extends View {
         showMessage(canvas);
         showRotationVector(canvas);
         showBalls(canvas);
+        showDiscoveryStatus(canvas);
+        showBusy(canvas);
+    }
+
+    public void showDiscoveryStatus(Canvas canvas) {
+        m_paint.setTextSize(m_messageTextSize);
+        m_paint.setColor(Color.RED);
+        m_paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+
+        String state = "idle";
+        if (((MainActivity)getContext()).m_wifiDirectData.getIsDiscovering()) {
+            state = "Discovering";
+        }
+
+        canvas.drawText(state, (int) (displayMetrics.widthPixels * 0.75), (int) (displayMetrics.heightPixels * 0.1), m_paint);
+    }
+
+    public void showBusy(Canvas canvas) {
+        m_paint.setTextSize(m_messageTextSize);
+        m_paint.setColor(Color.RED);
+        m_paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+
+        String state = "free";
+        if (((MainActivity)getContext()).getIsBusy()) {
+            state = "busy";
+        }
+
+        canvas.drawText(state, (int) (displayMetrics.widthPixels * 0.75), (int) (displayMetrics.heightPixels * 0.2), m_paint);
     }
 
     public void showAccuracy(Canvas canvas) {
@@ -690,7 +720,7 @@ public class ClientView extends View {
         MainActivity ma = (MainActivity)getContext();
         if (ma != null) {
             ma.m_bluetoothData.addMessage(jsonObject.toString());
-            ma.m_bluetoothData.sendMessage();
+            //ma.m_bluetoothData.sendMessage();
             ma.m_wifiDirectData.setFileUri(ball.m_fileUri.toString());
             m_sentBallId = ball.m_id;
             ma.startWifiDirectConnection(receiverAddress);

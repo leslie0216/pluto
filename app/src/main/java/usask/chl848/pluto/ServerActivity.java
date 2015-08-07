@@ -42,7 +42,7 @@ public class ServerActivity extends Activity{
             if (m_bluetoothData != null) {
                 m_bluetoothData.sendMessage();
             }
-            timerHandler.postDelayed(this, 500);
+            timerHandler.postDelayed(this, 200);
         }
     };
 

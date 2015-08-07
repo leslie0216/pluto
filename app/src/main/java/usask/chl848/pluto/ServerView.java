@@ -76,6 +76,7 @@ public class ServerView extends View{
                 record.put("ballId", strval.ballId);
                 record.put("ballColor", strval.ballColor);
                 record.put("receiverAddress", strval.receiverAddress);
+                record.put("isBusy", strval.isBusy);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

@@ -11,8 +11,12 @@ import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 
@@ -89,14 +93,14 @@ public class Utility {
         return filename;
     }
 
-    public static String getFileName(String filename) {
-        if ((filename != null) && (filename.length() > 0)) {
-            int slash = filename.lastIndexOf('/');
-            if ((slash >-1) && (slash < (filename.length() - 1))) {
-                return filename.substring(slash + 1);
+    public static String getFileName(String filePath) {
+        if ((filePath != null) && (filePath.length() > 0)) {
+            int slash = filePath.lastIndexOf('/');
+            if ((slash >-1) && (slash < (filePath.length() - 1))) {
+                return filePath.substring(slash + 1);
             }
         }
-        return filename;
+        return filePath;
     }
 
     public static String getFileNameNoEx(String filename) {
@@ -171,5 +175,17 @@ public class Utility {
             }
 
         } //synchronized
+    }
+
+    public static byte[] serialize(Object obj) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ObjectOutputStream os = new ObjectOutputStream(out);
+        os.writeObject(obj);
+        return out.toByteArray();
+    }
+    public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        ObjectInputStream is = new ObjectInputStream(in);
+        return is.readObject();
     }
 }

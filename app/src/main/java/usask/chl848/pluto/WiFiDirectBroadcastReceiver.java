@@ -34,20 +34,21 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
                 // Wifi Direct mode is enabled
                 m_activity.m_wifiDirectData.setIsWifiP2pEnabled(true);
+                Log.d(MainActivity.TAG, "P2P state changed - enable");
             } else {
                 m_activity.m_wifiDirectData.setIsWifiP2pEnabled(false);
+                Log.d(MainActivity.TAG, "P2P state changed - disable");
                 //m_activity.resetData();
             }
-            Log.d(MainActivity.TAG, "P2P state changed - " + state);
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
 
             // request available peers from the wifi p2p manager. This is an
             // asynchronous call and the calling activity is notified with a
             // callback on PeerListListener.onPeersAvailable()
+            Log.d(MainActivity.TAG, "P2P peers changed");
             if (m_manager != null) {
                 m_manager.requestPeers(m_channel, m_activity.m_wifiDirectData);
             }
-            Log.d(MainActivity.TAG, "P2P peers changed");
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
 
             if (m_manager == null) {
@@ -67,6 +68,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                 m_manager.requestConnectionInfo(m_channel, m_activity.m_wifiDirectData);
             } else {
                 // It's a disconnect
+                m_activity.setIsBusy(false);
                 m_activity.stopProgressDialog();
             }
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
@@ -74,7 +76,11 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             m_activity.m_wifiDirectData.setDevice((WifiP2pDevice) intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE));
             m_activity.updateThisDevice();
         } else if (MainActivity.REQUEST_DISCONNECT_ACTION.equals(action)) {
+            Log.d(MainActivity.TAG, "User request disconnection");
             m_activity.disconnect();
+        } else if (WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION.equals(action)) {
+            int state = intent.getIntExtra(WifiP2pManager.EXTRA_DISCOVERY_STATE, 0);
+            m_activity.m_wifiDirectData.setIsDiscovering(state == WifiP2pManager.WIFI_P2P_DISCOVERY_STARTED);
         }
     }
 }

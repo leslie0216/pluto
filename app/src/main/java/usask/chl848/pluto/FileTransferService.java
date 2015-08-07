@@ -51,6 +51,13 @@ public class FileTransferService extends IntentService {
 
                 Log.d(MainActivity.TAG, "Client socket - " + socket.isConnected());
                 OutputStream stream = socket.getOutputStream();
+
+                WiFiDirectObject wiFiDirectObject = new WiFiDirectObject();
+                String filePath = Utility.getRealFilePath(context, Uri.parse(fileUri));
+                wiFiDirectObject.init(Utility.getFileName(filePath), filePath);
+                stream.write(Utility.serialize(wiFiDirectObject));
+
+                /*
                 ContentResolver cr = context.getContentResolver();
                 InputStream is = null;
                 try {
@@ -59,6 +66,8 @@ public class FileTransferService extends IntentService {
                     Log.d(MainActivity.TAG, e.toString());
                 }
                 Utility.copyFile(is, stream);
+                */
+                stream.close();
                 Log.d(MainActivity.TAG, "Client: Data written");
             } catch (IOException e) {
                 Log.e(MainActivity.TAG, "Client: Data write error : " + e.getMessage());

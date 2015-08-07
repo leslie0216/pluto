@@ -3,21 +3,11 @@ package usask.chl848.pluto;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
-import android.net.wifi.WpsInfo;
-import android.net.wifi.p2p.WifiP2pConfig;
-import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.net.wifi.p2p.WifiP2pInfo;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Handler;
 import android.provider.Settings;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -28,12 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 
 public class MainActivity extends Activity {
@@ -74,7 +59,7 @@ public class MainActivity extends Activity {
             }
             m_clientView.invalidate();
             m_bluetoothData.sendMessage();
-            m_timerHandler.postDelayed(this, 500);
+            m_timerHandler.postDelayed(this, 200);
         }
     };
 
@@ -238,7 +223,7 @@ public class MainActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CHOOSE_FILE_RESULT_CODE && resultCode == RESULT_OK) {
             Uri uri = data.getData();
-            Log.d(MainActivity.TAG, "Intent----------- " + uri);
+            Log.d(MainActivity.TAG, "onActivityResult(), file: " + uri);
             m_clientView.addBall(uri);
         } else if (requestCode == REQUEST_ENABLE_BLUETOOTH) {
             if (resultCode == RESULT_OK) {
@@ -276,11 +261,13 @@ public class MainActivity extends Activity {
             m_wifiDirectData.discoverPeers();
         } else {
             showToast(getResources().getString(R.string.p2p_off_warning));
+            setIsBusy(false);
         }
     }
 
     public void enableWiFiDirectDiscovery() {
         if (m_wifiDirectData.getIsWifiP2pEnabled()) {
+            m_wifiDirectData.setRemoteDeviceAddress("");
             m_wifiDirectData.discoverPeers();
         } else {
             showToast(getResources().getString(R.string.p2p_off_warning));
