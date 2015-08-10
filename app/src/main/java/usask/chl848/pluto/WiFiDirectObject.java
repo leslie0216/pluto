@@ -1,8 +1,5 @@
 package usask.chl848.pluto;
 
-import android.net.Uri;
-import android.util.Log;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,7 +7,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 /**
- * Created by chl848 on 8/7/2015.
+ * object for transferring between devices
  */
 public class WiFiDirectObject implements Serializable {
     private String m_filename;
@@ -30,7 +27,7 @@ public class WiFiDirectObject implements Serializable {
         try {
             inputStream = new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            Log.d(MainActivity.TAG, e.toString());
+            PlutoLogger.Instance().write(e.toString());
         }
 
         m_fileContent = new byte[(int)m_fileLength];
@@ -38,7 +35,7 @@ public class WiFiDirectObject implements Serializable {
         try {
             inputStream.read(m_fileContent);
         } catch (IOException e) {
-            Log.d(MainActivity.TAG, e.toString());
+            PlutoLogger.Instance().write(e.toString());
         }
     }
 

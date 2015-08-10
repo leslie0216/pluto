@@ -43,17 +43,20 @@ public class FileTransferService extends IntentService {
             int port = intent.getExtras().getInt(EXTRAS_GROUP_OWNER_PORT);
 
             try {
-                Log.d(MainActivity.TAG, "Opening client socket - ");
-                Log.d(MainActivity.TAG, "host - " + host);
-                Log.d(MainActivity.TAG, "port - " + port);
+                PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Opening client socket - ");
+                PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - host - " + host);
+                PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - port - " + port);
                 socket.bind(null);
                 socket.connect((new InetSocketAddress(host, port)), SOCKET_TIMEOUT);
 
-                Log.d(MainActivity.TAG, "Client socket - " + socket.isConnected());
+                PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client socket - " + socket.isConnected());
+
                 OutputStream stream = socket.getOutputStream();
 
                 WiFiDirectObject wiFiDirectObject = new WiFiDirectObject();
                 String filePath = Utility.getRealFilePath(context, Uri.parse(fileUri));
+
+                PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client file ready : " + filePath);
                 wiFiDirectObject.init(Utility.getFileName(filePath), filePath);
                 stream.write(Utility.serialize(wiFiDirectObject));
 
@@ -68,9 +71,9 @@ public class FileTransferService extends IntentService {
                 Utility.copyFile(is, stream);
                 */
                 stream.close();
-                Log.d(MainActivity.TAG, "Client: Data written");
+                PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client: Data written done");
             } catch (IOException e) {
-                Log.e(MainActivity.TAG, "Client: Data write error : " + e.getMessage());
+                PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client: Data write error : " + e.getMessage());
                 //disconnect wifi direct
                 Intent i = new Intent(MainActivity.REQUEST_DISCONNECT_ACTION);
                 sendBroadcast(i);

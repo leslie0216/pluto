@@ -9,6 +9,7 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.p2p.nsd.WifiP2pServiceRequest;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
@@ -43,6 +44,7 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
     Runnable m_timerDiscoveryRunnable = new Runnable() {
         @Override
         public void run() {
+            PlutoLogger.Instance().write("WifiDirectData::m_timerDiscoveryRunnable, discovery time out");
             m_activity.showToast(m_activity.getResources().getString(R.string.peerNotFound));
             m_activity.stopProgressDialog();
             m_activity.setIsBusy(false);
@@ -151,6 +153,7 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
             public void onFailure(int reasonCode) {
                 Toast.makeText(m_activity, "Discovery Failed : " + reasonCode,
                         Toast.LENGTH_SHORT).show();
+                PlutoLogger.Instance().write("WifiDirectData::discoverPeers() - onFailure : " + reasonCode);
                 m_activity.setIsBusy(false);
             }
         });
@@ -161,6 +164,8 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
         config.deviceAddress = m_remote_device_address;
         config.wps.setup = WpsInfo.PBC;
         config.groupOwnerIntent = 0;
+
+        PlutoLogger.Instance().write("WifiDirectData::connect() - remoteAddr : " + m_remote_device_address);
         m_wifiP2pManager.connect(m_channel, config, new WifiP2pManager.ActionListener() {
 
             @Override
@@ -172,18 +177,19 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
             @Override
             public void onFailure(int reason) {
                 Toast.makeText(m_activity, "Connect failed. Retry." + reason, Toast.LENGTH_SHORT).show();
+                PlutoLogger.Instance().write("WifiDirectData::connect() - onFailure : " + reason);
                 m_activity.setIsBusy(false);
             }
         });
     }
 
     public void disconnect() {
-        Log.d(MainActivity.TAG, "Disconnect()");
+        PlutoLogger.Instance().write("WifiDirectData::Disconnect()");
         m_wifiP2pManager.removeGroup(m_channel, new WifiP2pManager.ActionListener() {
 
             @Override
             public void onFailure(int reasonCode) {
-                Log.d(MainActivity.TAG, "Disconnect failed. Reason :" + reasonCode);
+                PlutoLogger.Instance().write("WifiDirectData::Disconnect() - onFailure. Reason :" + reasonCode);
 
             }
 
@@ -199,30 +205,16 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
     public void onChannelDisconnected() {
         // we will try once more
         if (m_wifiP2pManager != null && !m_retryChannel) {
+            PlutoLogger.Instance().write("WifiDirectData::onChannelDisconnected() m_retryChannel : " + m_retryChannel);
             Toast.makeText(m_activity, "Channel lost. Trying again", Toast.LENGTH_LONG).show();
             //resetData();
             m_retryChannel = true;
             m_wifiP2pManager.initialize(m_activity, m_activity.getMainLooper(), this);
         } else {
+            PlutoLogger.Instance().write("WifiDirectData::onChannelDisconnected() m_retryChannel : " + m_retryChannel);
             Toast.makeText(m_activity,
                     "Severe! Channel is probably lost premanently. Try Disable/Re-Enable P2P.",
                     Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public  void onConnectionInfoAvailable(final WifiP2pInfo info) {
-        m_activity.stopProgressDialog();
-        setWifiP2pInfo(info);
-
-        if (info.groupFormed) {
-            if (info.isGroupOwner) {
-                Log.d(MainActivity.TAG, "onConnectionInfoAvailable - isGroupOwner = true");
-                new FileServerAsyncTask(m_activity).execute();
-            } else {
-                Log.d(MainActivity.TAG, "onConnectionInfoAvailable - isGroupOwner = false");
-                m_activity.sendFile();
-            }
         }
     }
 
@@ -233,11 +225,12 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
         deviceList.addAll(peerList.getDeviceList());
 
         for (WifiP2pDevice device : deviceList) {
-            Log.d(MainActivity.TAG, "devices found : " + device.deviceName);
+            PlutoLogger.Instance().write("WifiDirectData::onPeersAvailable() - devices found : " + device.deviceName + "(" + device.deviceAddress + ")");
+            PlutoLogger.Instance().write("WifiDirectData::onPeersAvailable() - getRemoteDeviceAddress() : " + getRemoteDeviceAddress());
             if (device.deviceAddress.equals(getRemoteDeviceAddress())) {
+                PlutoLogger.Instance().write("WifiDirectData::onPeersAvailable() - target device " + getRemoteDeviceAddress() + " found");
                 m_activity.stopProgressDialog();
                 m_activity.showProgressDialog("", m_activity.getResources().getString(R.string.connectingTo) + " " + getRemoteDeviceAddress(), true, false);
-                Log.d(MainActivity.TAG, "target device found");
                 m_activity.showToast("target device found");
                 connect();
                 break;
@@ -246,7 +239,22 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
 
         if (deviceList.isEmpty()) {
             Toast.makeText(m_activity, "No devices found", Toast.LENGTH_SHORT).show();
-            Log.d(MainActivity.TAG, "No devices found");
+            PlutoLogger.Instance().write("WifiDirectData::onPeersAvailable() - No devices found");
+        }
+    }
+
+    @Override
+    public  void onConnectionInfoAvailable(final WifiP2pInfo info) {
+        m_activity.stopProgressDialog();
+        setWifiP2pInfo(info);
+
+        if (info.groupFormed) {
+            PlutoLogger.Instance().write("WifiDirectData::onConnectionInfoAvailable() - isGroupOwner = " + info.isGroupOwner);
+            if (info.isGroupOwner) {
+                new FileServerAsyncTask(m_activity).execute();
+            } else {
+                m_activity.sendFile();
+            }
         }
     }
 }

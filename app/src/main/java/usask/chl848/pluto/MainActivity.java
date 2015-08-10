@@ -177,6 +177,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         m_bluetoothData.stopThreads();
+        PlutoLogger.Instance().close();
         super.onDestroy();
     }
 
@@ -208,6 +209,7 @@ public class MainActivity extends Activity {
     public void sendFile() {
         if (!m_wifiDirectData.getFileUri().isEmpty()) {
             showProgressDialog("", getResources().getString(R.string.sending), true, false);
+            PlutoLogger.Instance().write("MainActivity::sendFile() - fileUri : " + m_wifiDirectData.getFileUri());
             Intent serviceIntent = new Intent(this, FileTransferService.class);
             serviceIntent.setAction(FileTransferService.ACTION_SEND_FILE);
             serviceIntent.putExtra(FileTransferService.EXTRAS_FILE_PATH, m_wifiDirectData.getFileUri());
@@ -223,9 +225,10 @@ public class MainActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CHOOSE_FILE_RESULT_CODE && resultCode == RESULT_OK) {
             Uri uri = data.getData();
-            Log.d(MainActivity.TAG, "onActivityResult(), file: " + uri);
+            PlutoLogger.Instance().write("MainActivity::onActivityResult(), choose file: " + uri);
             m_clientView.addBall(uri);
         } else if (requestCode == REQUEST_ENABLE_BLUETOOTH) {
+            PlutoLogger.Instance().write("MainActivity::onActivityResult(), enable bt : " + resultCode);
             if (resultCode == RESULT_OK) {
                 m_bluetoothData.setupThread();
             }
@@ -255,6 +258,7 @@ public class MainActivity extends Activity {
 
     public void startWifiDirectConnection(String remoteAddress) {
         if (m_wifiDirectData.getIsWifiP2pEnabled()) {
+            PlutoLogger.Instance().write("MainActivity::startWifiDirectConnection(), client start wifi connection, remoteAddr : " + remoteAddress);
             m_wifiDirectData.setRemoteDeviceAddress(remoteAddress);
 
             showProgressDialog("", getResources().getString(R.string.finding) + " : " + m_wifiDirectData.getRemoteDeviceAddress(), true, false);
@@ -267,6 +271,7 @@ public class MainActivity extends Activity {
 
     public void enableWiFiDirectDiscovery() {
         if (m_wifiDirectData.getIsWifiP2pEnabled()) {
+            PlutoLogger.Instance().write("MainActivity::enableWiFiDirectDiscovery(), server start wifi connection");
             m_wifiDirectData.setRemoteDeviceAddress("");
             m_wifiDirectData.discoverPeers();
         } else {

@@ -36,7 +36,7 @@ public class Utility {
             out.close();
             inputStream.close();
         } catch (IOException e) {
-            Log.d(MainActivity.TAG, e.toString());
+            PlutoLogger.Instance().write(e.toString());
             return false;
         }
         return true;
@@ -128,7 +128,7 @@ public class Utility {
             }
             catch(Exception e)
             {
-                Log.d(MainActivity.TAG, "Exception getting mSocket in cleanCloseFix(): " + e.toString());
+                PlutoLogger.Instance().write("Utility::cleanCloseFix() - Exception getting mSocket in cleanCloseFix(): " + e.toString());
             }
 
             if(mSocket != null)
@@ -142,7 +142,7 @@ public class Utility {
                 try { socketField.set(btSocket, mSocket); }
                 catch(Exception e)
                 {
-                    Log.d(MainActivity.TAG, "Exception setting mSocket = null in cleanCloseFix(): " + e.toString());
+                    PlutoLogger.Instance().write("Utility::cleanCloseFix() - Exception setting mSocket = null in cleanCloseFix(): " + e.toString());
                 }
             }
 
@@ -158,7 +158,7 @@ public class Utility {
             }
             catch(Exception e)
             {
-                Log.d(MainActivity.TAG, "Exception getting mPfd in cleanCloseFix(): " + e.toString());
+                PlutoLogger.Instance().write("Utility::cleanCloseFix() - Exception getting mPfd in cleanCloseFix(): " + e.toString());
             }
 
             if(mPfd != null)
@@ -170,7 +170,7 @@ public class Utility {
                 try { pfdField.set(btSocket, mPfd); }
                 catch(Exception e)
                 {
-                    Log.d(MainActivity.TAG, "Exception setting mPfd = null in cleanCloseFix(): " + e.toString());
+                    PlutoLogger.Instance().write("Utility::cleanCloseFix() - Exception setting mPfd = null in cleanCloseFix(): " + e.toString());
                 }
             }
 

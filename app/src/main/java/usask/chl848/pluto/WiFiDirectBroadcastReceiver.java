@@ -34,10 +34,10 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
                 // Wifi Direct mode is enabled
                 m_activity.m_wifiDirectData.setIsWifiP2pEnabled(true);
-                Log.d(MainActivity.TAG, "P2P state changed - enable");
+                PlutoLogger.Instance().write("WiFiDirectBroadcastReceiver()::onReceive() - P2P state changed - enable");
             } else {
                 m_activity.m_wifiDirectData.setIsWifiP2pEnabled(false);
-                Log.d(MainActivity.TAG, "P2P state changed - disable");
+                PlutoLogger.Instance().write("WiFiDirectBroadcastReceiver()::onReceive() - P2P state changed - disable");
                 //m_activity.resetData();
             }
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
@@ -45,7 +45,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             // request available peers from the wifi p2p manager. This is an
             // asynchronous call and the calling activity is notified with a
             // callback on PeerListListener.onPeersAvailable()
-            Log.d(MainActivity.TAG, "P2P peers changed");
+            PlutoLogger.Instance().write("WiFiDirectBroadcastReceiver()::onReceive() - P2P peers changed");
             if (m_manager != null) {
                 m_manager.requestPeers(m_channel, m_activity.m_wifiDirectData);
             }
@@ -57,7 +57,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
             NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
 
-            Log.d(MainActivity.TAG, "connection changed, isConnected = " + networkInfo.isConnected());
+            PlutoLogger.Instance().write("WiFiDirectBroadcastReceiver()::onReceive() - connection changed, isConnected = " + networkInfo.isConnected());
 
             if (networkInfo.isConnected()) {
 
@@ -73,14 +73,18 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             }
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
 
+            PlutoLogger.Instance().write("WiFiDirectBroadcastReceiver()::onReceive() - this device changed");
             m_activity.m_wifiDirectData.setDevice((WifiP2pDevice) intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE));
             m_activity.updateThisDevice();
         } else if (MainActivity.REQUEST_DISCONNECT_ACTION.equals(action)) {
-            Log.d(MainActivity.TAG, "User request disconnection");
+
+            PlutoLogger.Instance().write("WiFiDirectBroadcastReceiver()::onReceive() - User request disconnection");
             m_activity.disconnect();
         } else if (WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION.equals(action)) {
+
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_DISCOVERY_STATE, 0);
             m_activity.m_wifiDirectData.setIsDiscovering(state == WifiP2pManager.WIFI_P2P_DISCOVERY_STARTED);
+            PlutoLogger.Instance().write("WiFiDirectBroadcastReceiver()::onReceive() - Wifi P2P discovery state changed : " + state);
         }
     }
 }

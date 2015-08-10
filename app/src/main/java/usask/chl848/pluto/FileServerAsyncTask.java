@@ -31,11 +31,11 @@ public class FileServerAsyncTask extends AsyncTask<Void, Void, String> {
     protected String doInBackground(Void... params) {
         try {
             ServerSocket serverSocket = new ServerSocket(8988);
-            Log.d(MainActivity.TAG, "Server: Socket opened");
+            PlutoLogger.Instance().write("FileServerAsyncTask::doInBackground() - Server: Socket opened");
             Socket client = serverSocket.accept();
-            Log.d(MainActivity.TAG, "Server: connection accepted");
+            PlutoLogger.Instance().write("FileServerAsyncTask::doInBackground() - Server: connection accepted");
 
-            Log.d(MainActivity.TAG, "server: copying files ");
+            PlutoLogger.Instance().write("FileServerAsyncTask::doInBackground() - server: copying files");
 
             InputStream inputstream = client.getInputStream();
             //Utility.copyFile(inputstream, new FileOutputStream(f));
@@ -55,8 +55,8 @@ public class FileServerAsyncTask extends AsyncTask<Void, Void, String> {
                 String fileExt = Utility.getExtensionName(fileFullName);
                 String dot = ".";
 
-                String path = Environment.getExternalStorageDirectory() + "/"
-                        + m_context.getPackageName() + "/";
+                String path = Environment.getExternalStorageDirectory() + File.separator
+                        + "pluto" + File.separator;
 
                 File f = new File(path + fileNameNoEx + dot + fileExt);
 
@@ -70,7 +70,7 @@ public class FileServerAsyncTask extends AsyncTask<Void, Void, String> {
                 }
                 boolean rt = f.createNewFile();
                 if (!rt) {
-                    Log.d(MainActivity.TAG, "createNewFile failed " + f.toString());
+                    PlutoLogger.Instance().write("FileServerAsyncTask::doInBackground() - createNewFile failed " + f.toString());
                 } else {
                     FileOutputStream fos = new FileOutputStream(f);
                     if (wiFiDirectObject.getFileContent() != null) {
@@ -78,17 +78,18 @@ public class FileServerAsyncTask extends AsyncTask<Void, Void, String> {
                     }
                     fos.close();
                     filePath = f.getAbsolutePath();
-                    Log.d(MainActivity.TAG, "server: file created : " + filePath);
+                    PlutoLogger.Instance().write("FileServerAsyncTask::doInBackground() - server: file created : " + filePath);
                 }
             } else {
-                Log.d(MainActivity.TAG, "Server read file failed");
+                PlutoLogger.Instance().write("FileServerAsyncTask::doInBackground() - Server read file failed");
             }
             serverSocket.close();
-            Log.d(MainActivity.TAG, "server: copy files finished");
+            PlutoLogger.Instance().write("FileServerAsyncTask::doInBackground() - server: copy files finished");
             ((MainActivity)m_context).disconnect();
             return filePath;
         } catch (IOException e) {
-            Log.e(MainActivity.TAG, "server: copy files error : " + e.getMessage());
+            e.printStackTrace();
+            PlutoLogger.Instance().write("FileServerAsyncTask::doInBackground() - server: copy files error : " + e.getMessage());
             return null;
         }
     }

@@ -26,7 +26,7 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
         if (BluetoothDevice.ACTION_FOUND.equals(action)) {
             // Get the BluetoothDevice object from the Intent
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-            Log.d(MainActivity.TAG, "Bluetooth device found - " + device.getName());
+            PlutoLogger.Instance().write("BluetoothBroadcastReceiver::onReceive() - Bluetooth device found : " + device.getName());
             // If it's already paired, skip it, because it's been listed already
             if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
                  if (device.getName().contains("btserver")) {
@@ -37,7 +37,7 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
             }
             // When discovery is finished, unregister listener
         } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-            Log.d(MainActivity.TAG, "Bluetooth discovery finished");
+            PlutoLogger.Instance().write("BluetoothBroadcastReceiver::onReceive() - Bluetooth discovery finished");
             m_data.stopDiscovery();
         }
     }

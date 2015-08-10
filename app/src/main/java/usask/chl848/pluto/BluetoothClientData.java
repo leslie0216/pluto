@@ -107,7 +107,7 @@ public class BluetoothClientData {
             //m_activity.showToast(m_activity.getResources().getString(R.string.bluetoothSeverNotFound));
             if (!m_bluetoothAdapter.isDiscovering()) {
                 //m_bluetoothAdapter.cancelDiscovery();
-                Log.d(MainActivity.TAG, "Start searching Bluetooth server");
+                PlutoLogger.Instance().write("BluetoothClientData::setupThread() - Start searching Bluetooth server");
                 registerBluetoothReceiver();
                 if (!m_bluetoothAdapter.startDiscovery()) {
                     m_activity.showToast(m_activity.getResources().getString(R.string.bluetoothSeverNotFound));
@@ -150,6 +150,7 @@ public class BluetoothClientData {
                 // Add the name and address to an array adapter to show in a ListView
                 if (device.getName().contains("btserver"))
                 {
+                    PlutoLogger.Instance().write("BluetoothClientData::findPairedDevices() - Bluetooth server found in paired devices");
                     setDevice(device);
                     break;
                 }
@@ -220,6 +221,7 @@ public class BluetoothClientData {
                     String receiverAddress = jsonObject.getString("receiverAddress");
                     if (receiverAddress.equalsIgnoreCase(m_activity.m_wifiDirectData.getDevice().deviceAddress)) {
                         //enable discovering...
+                        PlutoLogger.Instance().write("BluetoothClientData::receiveBTMessage() - This device has been set as wifi server, enable discovery");
                         m_activity.enableWiFiDirectDiscovery();
                     }
                 }
