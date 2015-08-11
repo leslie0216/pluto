@@ -76,15 +76,26 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             PlutoLogger.Instance().write("WiFiDirectBroadcastReceiver()::onReceive() - this device changed");
             m_activity.m_wifiDirectData.setDevice((WifiP2pDevice) intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE));
             m_activity.updateThisDevice();
+        }  else if (WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION.equals(action)) {
+
+            int state = intent.getIntExtra(WifiP2pManager.EXTRA_DISCOVERY_STATE, 0);
+            m_activity.m_wifiDirectData.setIsDiscovering(state == WifiP2pManager.WIFI_P2P_DISCOVERY_STARTED);
+
+            String s;
+            if (state == WifiP2pManager.WIFI_P2P_DISCOVERY_STARTED) {
+                s = "Start discovery";
+            } else {
+                s = "Stop discovery";
+            }
+            PlutoLogger.Instance().write("WiFiDirectBroadcastReceiver()::onReceive() - Wifi P2P discovery state changed : " + s);
         } else if (MainActivity.REQUEST_DISCONNECT_ACTION.equals(action)) {
 
             PlutoLogger.Instance().write("WiFiDirectBroadcastReceiver()::onReceive() - User request disconnection");
             m_activity.disconnect();
-        } else if (WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION.equals(action)) {
+        } else if (MainActivity.REQUEST_REMOVE_BALL_ACTION.equals(action)) {
 
-            int state = intent.getIntExtra(WifiP2pManager.EXTRA_DISCOVERY_STATE, 0);
-            m_activity.m_wifiDirectData.setIsDiscovering(state == WifiP2pManager.WIFI_P2P_DISCOVERY_STARTED);
-            PlutoLogger.Instance().write("WiFiDirectBroadcastReceiver()::onReceive() - Wifi P2P discovery state changed : " + state);
+            PlutoLogger.Instance().write("WiFiDirectBroadcastReceiver()::onReceive() - User request remove ball");
+            m_activity.removeBall();
         }
     }
 }

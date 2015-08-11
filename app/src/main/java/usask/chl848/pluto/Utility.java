@@ -60,6 +60,23 @@ public class Utility {
         }
     }
 
+    public static String getFailureReason(int reason) {
+        String r = "";
+        switch (reason) {
+            case 0 :
+                r = "Error";
+                break;
+            case 1:
+                r = "P2p unsupported";
+                break;
+            case 2:
+                r = "Busy";
+                break;
+        }
+
+        return r;
+    }
+
     public static String getRealFilePath( final Context context, final Uri uri ) {
         if ( null == uri ) return null;
         final String scheme = uri.getScheme();

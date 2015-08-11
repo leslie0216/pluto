@@ -163,6 +163,18 @@ public class ClientView extends View {
         showBalls(canvas);
         showDiscoveryStatus(canvas);
         showBusy(canvas);
+        showDeviceStatus(canvas);
+    }
+
+    public void showDeviceStatus(Canvas canvas) {
+        m_paint.setTextSize(m_messageTextSize);
+        m_paint.setColor(Color.RED);
+        m_paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+
+        String state = "Status : " + Utility.getWifiDeviceStatus(((MainActivity)getContext()).m_wifiDirectData.getDevice().status);
+
+        canvas.drawText(state, (int) (displayMetrics.widthPixels * 0.7), (int) (displayMetrics.heightPixels * 0.15), m_paint);
     }
 
     public void showDiscoveryStatus(Canvas canvas) {
@@ -171,12 +183,12 @@ public class ClientView extends View {
         m_paint.setStyle(Paint.Style.FILL_AND_STROKE);
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
 
-        String state = "idle";
+        String state = "Scan : idle";
         if (((MainActivity)getContext()).m_wifiDirectData.getIsDiscovering()) {
-            state = "Discovering";
+            state = "Scan : Discovering";
         }
 
-        canvas.drawText(state, (int) (displayMetrics.widthPixels * 0.75), (int) (displayMetrics.heightPixels * 0.1), m_paint);
+        canvas.drawText(state, (int) (displayMetrics.widthPixels * 0.7), (int) (displayMetrics.heightPixels * 0.1), m_paint);
     }
 
     public void showBusy(Canvas canvas) {
@@ -190,7 +202,7 @@ public class ClientView extends View {
             state = "busy";
         }
 
-        canvas.drawText(state, (int) (displayMetrics.widthPixels * 0.75), (int) (displayMetrics.heightPixels * 0.2), m_paint);
+        canvas.drawText(state, (int) (displayMetrics.widthPixels * 0.7), (int) (displayMetrics.heightPixels * 0.2), m_paint);
     }
 
     public void showAccuracy(Canvas canvas) {
@@ -588,7 +600,11 @@ public class ClientView extends View {
                         if (!isOverlap) {
                             String address = isSending(ball.m_ballX, ball.m_ballY);
                             if (!address.isEmpty()) {
-                                sendBall(ball, address);
+                                if (isBusy(address)){
+                                    ((MainActivity)getContext()).showToast(getResources().getString(R.string.targetIsBusy));
+                                } else {
+                                    sendBall(ball, address);
+                                }
                             }
                         }
                     }
@@ -660,6 +676,20 @@ public class ClientView extends View {
         }
 
         return receiverAddress;
+    }
+
+    private boolean isBusy(String address) {
+        boolean rt = false;
+        for (RemotePhoneInfo remotePhoneInfo : m_remotePhones) {
+            if (remotePhoneInfo.m_macAddress.equals(address)){
+                if (remotePhoneInfo.m_isBusy) {
+                    rt = true;
+                }
+                break;
+            }
+        }
+
+        return rt;
     }
 
     public void addBall(Uri fileUri) {

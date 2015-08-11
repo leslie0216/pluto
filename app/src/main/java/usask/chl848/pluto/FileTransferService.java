@@ -56,7 +56,7 @@ public class FileTransferService extends IntentService {
                 WiFiDirectObject wiFiDirectObject = new WiFiDirectObject();
                 String filePath = Utility.getRealFilePath(context, Uri.parse(fileUri));
 
-                PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client file ready : " + filePath);
+                PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client file ready to send : " + filePath);
                 wiFiDirectObject.init(Utility.getFileName(filePath), filePath);
                 stream.write(Utility.serialize(wiFiDirectObject));
 
@@ -72,6 +72,8 @@ public class FileTransferService extends IntentService {
                 */
                 stream.close();
                 PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client: Data written done");
+                Intent i = new Intent(MainActivity.REQUEST_REMOVE_BALL_ACTION);
+                sendBroadcast(i);
             } catch (IOException e) {
                 PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client: Data write error : " + e.getMessage());
                 //disconnect wifi direct

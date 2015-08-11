@@ -25,6 +25,7 @@ public class MainActivity extends Activity {
     protected static final int CHOOSE_FILE_RESULT_CODE = 20;
     protected static final int REQUEST_ENABLE_BLUETOOTH = 21;
     public static final String REQUEST_DISCONNECT_ACTION = "usask.chl848.pluto.DISCONNECT_ACTION";
+    public static final String REQUEST_REMOVE_BALL_ACTION = "usask.chl848.pluto.REMOVE_BALL__ACTION";
 
     public static final String TAG = "USaskPluto";
 
@@ -38,6 +39,7 @@ public class MainActivity extends Activity {
     private ProgressDialog m_progressDialog = null;
 
     private boolean m_isBusy;
+    private boolean m_isInvited;
 
     /**
      * Bluetooth
@@ -216,9 +218,12 @@ public class MainActivity extends Activity {
             serviceIntent.putExtra(FileTransferService.EXTRAS_GROUP_OWNER_ADDRESS, m_wifiDirectData.getWifiP2pInfo().groupOwnerAddress.getHostAddress());
             serviceIntent.putExtra(FileTransferService.EXTRAS_GROUP_OWNER_PORT, 8988);
             startService(serviceIntent);
-            m_wifiDirectData.setFileUri("");
-            m_clientView.removeBall();
         }
+    }
+
+    public void removeBall() {
+        m_wifiDirectData.setFileUri("");
+        m_clientView.removeBall();
     }
 
     @Override
@@ -260,6 +265,7 @@ public class MainActivity extends Activity {
         if (m_wifiDirectData.getIsWifiP2pEnabled()) {
             PlutoLogger.Instance().write("MainActivity::startWifiDirectConnection(), client start wifi connection, remoteAddr : " + remoteAddress);
             m_wifiDirectData.setRemoteDeviceAddress(remoteAddress);
+            setIsInvited(false);
 
             showProgressDialog("", getResources().getString(R.string.finding) + " : " + m_wifiDirectData.getRemoteDeviceAddress(), true, false);
             m_wifiDirectData.discoverPeers();
@@ -285,5 +291,13 @@ public class MainActivity extends Activity {
 
     public void setIsBusy(boolean isBusy) {
         m_isBusy = isBusy;
+    }
+
+    public boolean getIsInvited() {
+        return m_isInvited;
+    }
+
+    public void setIsInvited(boolean isInvited) {
+        m_isInvited = isInvited;
     }
 }

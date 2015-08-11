@@ -38,4 +38,5 @@
     <string name="connectedCnt">Connected Count</string>
     <string name="serverName">Server Name</string>
     <string name="peerNotFound">Can not find the target!</string>
+    <string name="targetIsBusy">Target is busy! Please try again later.</string>
 </resources>
