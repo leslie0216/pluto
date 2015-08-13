@@ -49,6 +49,7 @@ public class ClientView extends View {
     private String m_message;
 
     Bitmap m_pic;
+    Bitmap m_earth;
 
     public class RemotePhoneInfo {
         String m_name;
@@ -58,6 +59,7 @@ public class ClientView extends View {
         float m_y;
         float m_z;
         boolean m_isBusy;
+        Bitmap m_planet;
     }
 
     private ArrayList<RemotePhoneInfo> m_remotePhones;
@@ -106,8 +108,10 @@ public class ClientView extends View {
         m_rotationVectorQueue = new LinkedList<>();
         m_remotePhones = new ArrayList<>();
 
-        setBackgroundColor(Color.WHITE);
-        m_pic = BitmapFactory.decodeResource(this.getResources(), R.drawable.arrow);
+        setBackgroundColor(Color.TRANSPARENT);
+        //setBackgroundResource(R.drawable.bg);
+        m_pic = BitmapFactory.decodeResource(this.getResources(), R.drawable.uparrow);
+        m_earth = BitmapFactory.decodeResource(this.getResources(), R.drawable.earth);
 
         m_message = getResources().getString(R.string.noMsg);
 
@@ -160,10 +164,11 @@ public class ClientView extends View {
         showLocalCircleCoordinate(canvas);
         showMessage(canvas);
         showRotationVector(canvas);
-        showBalls(canvas);
+        //showBalls(canvas);
         showDiscoveryStatus(canvas);
         showBusy(canvas);
         showDeviceStatus(canvas);
+        showEarths(canvas);
     }
 
     public void showDeviceStatus(Canvas canvas) {
@@ -264,17 +269,31 @@ public class ClientView extends View {
 
     public void showRemotePhones(Canvas canvas) {
         if (!m_remotePhones.isEmpty()) {
-            for (RemotePhoneInfo info : m_remotePhones) {
+            // copy it for avoiding concurrent modification exception
+            ArrayList<RemotePhoneInfo> remotePhones = new ArrayList<>();
+            remotePhones.addAll(m_remotePhones);
+
+            for (RemotePhoneInfo info : remotePhones) {
                 float angle_remote = calculateRemoteAngleInLocalCoordinate(info.m_z);
                 float pointX_remote = m_localCoordinateCenterX + m_localCoordinateRadius * (float) Math.cos(Math.toRadians(angle_remote));
                 float pointY_remote = m_localCoordinateCenterY - m_localCoordinateRadius * (float) Math.sin(Math.toRadians(angle_remote));
-                m_paint.setColor(info.m_color);
-                m_paint.setStyle(Paint.Style.FILL_AND_STROKE);
-                canvas.drawCircle(pointX_remote, pointY_remote, m_remotePhoneRadius, m_paint);
+                //m_paint.setColor(info.m_color);
+                //m_paint.setStyle(Paint.Style.FILL_AND_STROKE);
+                //canvas.drawCircle(pointX_remote, pointY_remote, m_remotePhoneRadius, m_paint);
+
+                float left = pointX_remote - m_ballRadius;
+                float top = pointY_remote - m_ballRadius;
+                float right = pointX_remote + m_ballRadius;
+                float bottom = pointY_remote + m_ballRadius;
+                RectF disRect = new RectF(left, top, right, bottom );
+                canvas.drawBitmap(info.m_planet, null, disRect, m_paint);
+
 
                 if (getShowRemoteNames()) {
                     m_paint.setTextSize(m_textSize);
                     m_paint.setStrokeWidth(m_textStrokeWidth);
+                    m_paint.setStyle(Paint.Style.FILL_AND_STROKE);
+                    m_paint.setColor(info.m_color);
                     float textX = pointX_remote - m_remotePhoneRadius;
                     float textY = pointY_remote - m_remotePhoneRadius * 1.5f;
                     if (info.m_name.length() > 5) {
@@ -292,6 +311,46 @@ public class ClientView extends View {
                 m_paint.setColor(ball.m_ballColor);
                 m_paint.setStyle(Paint.Style.FILL_AND_STROKE);
                 canvas.drawCircle(ball.m_ballX, ball.m_ballY, m_ballRadius, m_paint);
+
+                /**
+                 * experiment begin
+                 */
+
+                m_paint.setStrokeWidth(m_textStrokeWidth);
+                m_paint.setTextSize(m_textSize);
+                float textX = ball.m_ballX - m_ballRadius;
+                float textY = ball.m_ballY - m_ballRadius;
+                if (ball.m_fileName.length() > 5) {
+                    textX = ball.m_ballX - m_ballRadius * 2.0f;
+                }
+                canvas.drawText(ball.m_fileName, textX, textY, m_paint);
+                /**
+                 * experiment end
+                 */
+            }
+        }
+    }
+
+    public void showEarths(Canvas canvas) {
+
+        if (!m_balls.isEmpty()) {
+            for (Ball ball : m_balls) {
+                //m_paint.setColor(ball.m_ballColor);
+                //m_paint.setStyle(Paint.Style.FILL_AND_STROKE);
+                //Bitmap earth = BitmapFactory.decodeResource(this.getResources(), R.drawable.earth);
+
+                //DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+                //float picWidth = m_pic.getScaledWidth(displayMetrics);
+                //float picHeight = m_pic.getScaledHeight(displayMetrics);
+
+                float left = ball.m_ballX - m_ballRadius;
+                float top = ball.m_ballY - m_ballRadius;
+                float right = ball.m_ballX + m_ballRadius;
+                float bottom = ball.m_ballY + m_ballRadius;
+                RectF disRect = new RectF(left, top, right, bottom );
+                canvas.drawBitmap(m_earth, null, disRect, m_paint);
+
+                //canvas.drawCircle(ball.m_ballX, ball.m_ballY, m_ballRadius, m_paint);
 
                 /**
                  * experiment begin
@@ -408,7 +467,7 @@ public class ClientView extends View {
         m_message = msg;
     }
 
-    public void updateRemotePhone(String name, String macAddress, int color, float x, float y, float z, boolean isBusy){
+    public void updateRemotePhone(String name, String macAddress, int color, float x, float y, float z, boolean isBusy, String planetName){
         if (macAddress.isEmpty() || macAddress.equalsIgnoreCase(m_macAddress)) {
             return;
         }
@@ -439,6 +498,9 @@ public class ClientView extends View {
             info.m_y = y;
             info.m_z = z;
             info.m_isBusy = isBusy;
+            int planetId = Utility.getPlanetIdByName(planetName);
+            Bitmap planet = BitmapFactory.decodeResource(this.getResources(), planetId);
+            info.m_planet = planet;
 
             m_remotePhones.add(info);
         }

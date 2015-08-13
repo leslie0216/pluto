@@ -67,7 +67,7 @@ public class BluetoothServerConnectedThread extends Thread{
 
     public void write(String msg) {
         try {
-            if (m_outStream != null) {
+            if (m_socket.isConnected() &&m_outStream != null) {
                 m_outStream.write(msg.getBytes());
             }
         } catch (IOException e) {
@@ -76,24 +76,26 @@ public class BluetoothServerConnectedThread extends Thread{
     }
 
     public void cancel() {
-        try {
-            if (m_inStream != null) {
-                m_inStream.close();
-                m_inStream = null;
-            }
-            if (m_outStream != null) {
-                m_outStream.flush();
-                m_outStream.close();
-                m_outStream = null;
-            }
-            if (m_socket != null) {
-                Utility.cleanCloseFix(m_socket);
-                m_socket.close();
-                m_socket = null;
-            }
+        synchronized (this) {
+            try {
+                if (m_inStream != null) {
+                    m_inStream.close();
+                    m_inStream = null;
+                }
+                if (m_outStream != null) {
+                    m_outStream.flush();
+                    m_outStream.close();
+                    m_outStream = null;
+                }
+                if (m_socket != null) {
+                    Utility.cleanCloseFix(m_socket);
+                    m_socket.close();
+                    m_socket = null;
+                }
 
-        } catch (IOException e) {
-            e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

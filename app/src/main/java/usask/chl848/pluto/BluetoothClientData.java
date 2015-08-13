@@ -211,9 +211,10 @@ public class BluetoothClientData {
                 float senderY = (float) jsonObject.getDouble("y");
                 float senderZ = (float) jsonObject.getDouble("z");
                 boolean isBusy = jsonObject.getBoolean("isBusy");
+                String planetName = jsonObject.getString("planetName");
 
                 if (m_activity.m_clientView != null) {
-                    m_activity.m_clientView.updateRemotePhone(senderName, senderAddress, senderColor, senderX, senderY, senderZ, isBusy);
+                    m_activity.m_clientView.updateRemotePhone(senderName, senderAddress, senderColor, senderX, senderY, senderZ, isBusy, planetName);
                 }
 
                 boolean isSendingBall = jsonObject.getBoolean("isSendingBall");

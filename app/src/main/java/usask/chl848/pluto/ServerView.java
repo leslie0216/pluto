@@ -11,8 +11,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Server View
@@ -35,13 +37,19 @@ public class ServerView extends View{
         String receiverAddress;
 
         boolean isBusy;
+
+        String planetName;
     }
     private Map<String, ClientInfo> m_clients = new HashMap<>();
+
+    private ArrayList<String> m_planetNames;
 
     public ServerView(Context context) {
         super(context);
 
         m_paint = new Paint();
+        m_planetNames = new ArrayList<>();
+        initPlanetId();
     }
 
     public void updateClientInfo(String senderName, String senderAddress, int color, float x, float y, float z, boolean isSendingBall, String ballId, int ballColor, String receiverAddress, boolean isBusy) {
@@ -56,6 +64,11 @@ public class ServerView extends View{
         clientInfo.receiverAddress = receiverAddress;
         clientInfo.name = senderName;
         clientInfo.isBusy = isBusy;
+        if (m_clients.containsKey(senderAddress)) {
+            clientInfo.planetName = m_clients.get(senderAddress).planetName;
+        } else {
+            clientInfo.planetName = getAvailableName();
+        }
         m_clients.put(senderAddress, clientInfo);
     }
 
@@ -77,6 +90,7 @@ public class ServerView extends View{
                 record.put("ballColor", strval.ballColor);
                 record.put("receiverAddress", strval.receiverAddress);
                 record.put("isBusy", strval.isBusy);
+                record.put("planetName", strval.planetName);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -124,7 +138,35 @@ public class ServerView extends View{
 
     public void removeDevice(String id) {
         if (m_clients.containsKey(id)) {
+            ClientInfo clientInfo = m_clients.get(id);
+            String planetName = clientInfo.planetName;
+            m_planetNames.add(planetName);
             m_clients.remove(id);
+
         }
+    }
+
+    private void initPlanetId() {
+        m_planetNames.clear();
+        m_planetNames.add("mercury");
+        m_planetNames.add("venus");
+        m_planetNames.add("mars");
+        m_planetNames.add("jupiter");
+        m_planetNames.add("saturn");
+        m_planetNames.add("uranus");
+        m_planetNames.add("neptune");
+        m_planetNames.add("pluto");
+    }
+
+    private String getAvailableName() {
+        if (m_planetNames.isEmpty()) {
+            return "";
+        }
+
+        Random rnd = new Random();
+        int index = rnd.nextInt(m_planetNames.size());
+        String name = m_planetNames.get(index);
+        m_planetNames.remove(index);
+        return name;
     }
 }

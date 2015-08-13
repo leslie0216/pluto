@@ -114,11 +114,16 @@ public class BluetoothServerData {
         if (m_messageList.size() != 0) {
             String msg = m_messageList.get(0);
             m_messageList.remove(0);
-            if (!m_connectedThreadList.isEmpty()) {
-                int size = m_connectedThreadList.size();
+
+            // copy it for avoiding IndexOutOfBoundsException
+            ArrayList<BluetoothServerConnectedThread> threads = new ArrayList<>();
+            threads.addAll(m_connectedThreadList);
+
+            if (!threads.isEmpty()) {
+                int size = threads.size();
 
                 for (int i = 0; i<size; ++i) {
-                    m_connectedThreadList.get(i).write(msg);
+                    threads.get(i).write(msg);
                 }
             }
         }

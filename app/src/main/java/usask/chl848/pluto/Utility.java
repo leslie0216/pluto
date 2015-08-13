@@ -200,9 +200,42 @@ public class Utility {
         os.writeObject(obj);
         return out.toByteArray();
     }
+
     public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         ObjectInputStream is = new ObjectInputStream(in);
         return is.readObject();
+    }
+
+    public static int getPlanetIdByName(String name) {
+        int rt = R.drawable.earth;
+        switch (name) {
+            case "mercury":
+                rt = R.drawable.mercury;
+                break;
+            case "venus":
+                rt = R.drawable.venus;
+                break;
+            case "mars":
+                rt = R.drawable.mars;
+                break;
+            case "jupiter":
+                rt = R.drawable.jupiter;
+                break;
+            case "saturn":
+                rt = R.drawable.saturn;
+                break;
+            case "uranus":
+                rt = R.drawable.uranus;
+                break;
+            case "neptune":
+                rt = R.drawable.neptune;
+                break;
+            case "pluto":
+                rt = R.drawable.pluto;
+                break;
+        }
+
+        return rt;
     }
 }
