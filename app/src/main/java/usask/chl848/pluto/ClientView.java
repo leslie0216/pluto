@@ -755,7 +755,10 @@ public class ClientView extends View {
     }
 
     public void addBall(Uri fileUri) {
-        String filePath = Utility.getRealFilePath(getContext(), fileUri);
+        //String filePath = Utility.getRealFilePath(getContext(), fileUri);
+        String filePath = FileUtils.getPath(getContext(), fileUri);
+        PlutoLogger.Instance().write("ClietView::addBall(), choose file: " + filePath);
+        //String path = Utility.getPath(getContext(), fileUri);
         Ball ball = new Ball();
         Random rnd = new Random();
         ball.m_ballColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
@@ -813,7 +816,7 @@ public class ClientView extends View {
         if (ma != null) {
             ma.m_bluetoothData.addMessage(jsonObject.toString());
             //ma.m_bluetoothData.sendMessage();
-            ma.m_wifiDirectData.setFileUri(ball.m_fileUri.toString());
+            ma.m_wifiDirectData.setFilePath(ball.m_filePath);
             m_sentBallId = ball.m_id;
             ma.startWifiDirectConnection(receiverAddress);
         }

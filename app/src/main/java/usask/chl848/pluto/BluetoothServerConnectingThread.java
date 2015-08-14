@@ -19,8 +19,8 @@ public class BluetoothServerConnectingThread extends Thread{
 
     public void initSocket () {
         try {
-            //m_serverSocket = m_data.getBluetoothAdapter().listenUsingRfcommWithServiceRecord("BTServer", BluetoothServerData.BLUETOOTH_UUID);
-            m_serverSocket = m_data.getBluetoothAdapter().listenUsingInsecureRfcommWithServiceRecord ("BTServer", BluetoothServerData.BLUETOOTH_UUID);
+            m_serverSocket = m_data.getBluetoothAdapter().listenUsingRfcommWithServiceRecord("BTServer", BluetoothServerData.BLUETOOTH_UUID);
+            //m_serverSocket = m_data.getBluetoothAdapter().listenUsingInsecureRfcommWithServiceRecord ("BTServer", BluetoothServerData.BLUETOOTH_UUID);
         } catch (IOException e) {
             m_serverSocket = null;
         }

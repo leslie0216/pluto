@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.provider.Settings;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -30,6 +32,8 @@ public class MainActivity extends Activity {
     public static final String TAG = "USaskPluto";
 
     public ClientView m_clientView;
+
+    private String m_receivedFile;
 
     /**
      * Wifi Direct
@@ -96,9 +100,19 @@ public class MainActivity extends Activity {
         selectBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");
-                startActivityForResult(intent, CHOOSE_FILE_RESULT_CODE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("*/*");
+                    intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    startActivityForResult(intent, CHOOSE_FILE_RESULT_CODE);
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);//ACTION_OPEN_DOCUMENT
+                    intent.setType("*/*");
+                    intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    startActivityForResult(intent, CHOOSE_FILE_RESULT_CODE);
+                }
             }
         });
 
@@ -209,12 +223,12 @@ public class MainActivity extends Activity {
     }
 
     public void sendFile() {
-        if (!m_wifiDirectData.getFileUri().isEmpty()) {
+        if (!m_wifiDirectData.getFilePath().isEmpty()) {
             showProgressDialog("", getResources().getString(R.string.sending), true, false);
-            PlutoLogger.Instance().write("MainActivity::sendFile() - fileUri : " + m_wifiDirectData.getFileUri());
+            PlutoLogger.Instance().write("MainActivity::sendFile() - filePath : " + m_wifiDirectData.getFilePath());
             Intent serviceIntent = new Intent(this, FileTransferService.class);
             serviceIntent.setAction(FileTransferService.ACTION_SEND_FILE);
-            serviceIntent.putExtra(FileTransferService.EXTRAS_FILE_PATH, m_wifiDirectData.getFileUri());
+            serviceIntent.putExtra(FileTransferService.EXTRAS_FILE_PATH, m_wifiDirectData.getFilePath());
             serviceIntent.putExtra(FileTransferService.EXTRAS_GROUP_OWNER_ADDRESS, m_wifiDirectData.getWifiP2pInfo().groupOwnerAddress.getHostAddress());
             serviceIntent.putExtra(FileTransferService.EXTRAS_GROUP_OWNER_PORT, 8988);
             startService(serviceIntent);
@@ -222,7 +236,7 @@ public class MainActivity extends Activity {
     }
 
     public void removeBall() {
-        m_wifiDirectData.setFileUri("");
+        m_wifiDirectData.setFilePath("");
         m_clientView.removeBall();
     }
 
@@ -299,5 +313,35 @@ public class MainActivity extends Activity {
 
     public void setIsInvited(boolean isInvited) {
         m_isInvited = isInvited;
+    }
+
+    public void viewFile(String file) {
+        m_receivedFile = file;
+        String fileName = Utility.getFileName(file);
+        new AlertDialog.Builder(MainActivity.this).setTitle(getResources().getString(R.string.fileReceived)).setMessage("\"" +fileName + "\"" + " " + getResources().getString(R.string.viewFileAlert)).setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent();
+                intent.setAction(android.content.Intent.ACTION_VIEW);
+                //String ext = MimeTypeMap.getFileExtensionFromUrl(result);
+
+                String ext = Utility.getExtensionName(MainActivity.this.m_receivedFile);
+                if (!ext.isEmpty()) {
+                    String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
+                    if (!mimeType.isEmpty()) {
+                        intent.setDataAndType(Uri.parse("file://" + MainActivity.this.m_receivedFile), mimeType);
+                        startActivity(intent);
+                    } else {
+                        MainActivity.this.showToast("Can not view such type of file");
+                    }
+
+                }
+            }
+        }).setNegativeButton(getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //
+            }
+        }).show();
     }
 }

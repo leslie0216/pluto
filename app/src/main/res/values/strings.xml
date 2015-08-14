@@ -39,4 +39,6 @@
     <string name="serverName">Server Name</string>
     <string name="peerNotFound">Can not find the target!</string>
     <string name="targetIsBusy">Target is busy! Please try again later.</string>
+    <string name="fileReceived">File Received</string>
+    <string name="viewFileAlert">is received. Do you want to view it now?</string>
 </resources>

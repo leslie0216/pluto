@@ -22,8 +22,8 @@ public class BluetoothClientConnectingThread extends Thread {
     private void initSocket() {
         try {
             if (m_data.m_device != null) {
-                m_socket = m_data.m_device.createInsecureRfcommSocketToServiceRecord(BluetoothClientData.BLUETOOTH_UUID);
-                //m_socket = m_data.m_device.createRfcommSocketToServiceRecord(BluetoothClientData.BLUETOOTH_UUID);
+                //m_socket = m_data.m_device.createInsecureRfcommSocketToServiceRecord(BluetoothClientData.BLUETOOTH_UUID);
+                m_socket = m_data.m_device.createRfcommSocketToServiceRecord(BluetoothClientData.BLUETOOTH_UUID);
             }
         } catch (IOException e) {
             e.printStackTrace();

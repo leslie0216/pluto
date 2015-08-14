@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.TextView;
 
 import java.io.File;
@@ -99,10 +100,7 @@ public class FileServerAsyncTask extends AsyncTask<Void, Void, String> {
         if (result != null) {
             ((MainActivity)m_context).stopProgressDialog();
             if (!result.isEmpty()) {
-                Intent intent = new Intent();
-                intent.setAction(android.content.Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.parse("file://" + result), "image/*");
-                m_context.startActivity(intent);
+                ((MainActivity)m_context).viewFile(result);
             }
         }
     }

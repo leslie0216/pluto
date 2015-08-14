@@ -31,7 +31,7 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
     private WifiP2pManager m_wifiP2pManager;
     private BroadcastReceiver m_receiver;
     private WifiP2pInfo m_info;
-    private String m_fileUri;
+    private String m_filePath;
 
     private boolean m_isWifiP2pEnabled = false;
     private boolean m_retryChannel = false;
@@ -83,7 +83,7 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
 
         m_wifiP2pManager = (WifiP2pManager)m_activity.getSystemService(Context.WIFI_P2P_SERVICE);
         m_channel = m_wifiP2pManager.initialize(m_activity, m_activity.getMainLooper(), this);
-        m_fileUri = "";
+        m_filePath = "";
     }
 
     public void setIsWifiP2pEnabled(boolean isWifiP2pEnabled) {
@@ -110,12 +110,12 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
         return m_remote_device_address;
     }
 
-    public void setFileUri(String fileUri) {
-        m_fileUri = fileUri;
+    public void setFilePath(String filePath) {
+        m_filePath = filePath;
     }
 
-    public String getFileUri() {
-        return m_fileUri;
+    public String getFilePath() {
+        return m_filePath;
     }
 
     public void setWifiP2pInfo(WifiP2pInfo info) {
