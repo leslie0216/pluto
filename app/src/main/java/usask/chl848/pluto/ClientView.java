@@ -172,14 +172,17 @@ public class ClientView extends View {
     }
 
     public void showDeviceStatus(Canvas canvas) {
-        m_paint.setTextSize(m_messageTextSize);
-        m_paint.setColor(Color.RED);
-        m_paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        WifiP2pDevice device = ((MainActivity)getContext()).m_wifiDirectData.getDevice();
+        if (device != null) {
+            m_paint.setTextSize(m_messageTextSize);
+            m_paint.setColor(Color.RED);
+            m_paint.setStyle(Paint.Style.FILL_AND_STROKE);
+            DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
 
-        String state = "Status : " + Utility.getWifiDeviceStatus(((MainActivity)getContext()).m_wifiDirectData.getDevice().status);
+            String state = "Status : " + Utility.getWifiDeviceStatus(device.status);
 
-        canvas.drawText(state, (int) (displayMetrics.widthPixels * 0.7), (int) (displayMetrics.heightPixels * 0.15), m_paint);
+            canvas.drawText(state, (int) (displayMetrics.widthPixels * 0.7), (int) (displayMetrics.heightPixels * 0.15), m_paint);
+        }
     }
 
     public void showDiscoveryStatus(Canvas canvas) {

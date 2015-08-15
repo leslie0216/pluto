@@ -3,6 +3,7 @@ package usask.chl848.pluto;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -71,13 +72,26 @@ public class MainActivity extends Activity {
 
     public void showProgressDialog(CharSequence title,CharSequence message, boolean indeterminate, boolean cancelable) {
         stopProgressDialog();
-        m_progressDialog = ProgressDialog.show(this, title, message, indeterminate, cancelable);
+        //m_progressDialog = ProgressDialog.show(this, title, message, indeterminate, cancelable);
+        m_progressDialog = newProgressDialog(this, title, message, indeterminate, cancelable, null);
     }
 
     public void stopProgressDialog() {
         if (m_progressDialog != null && m_progressDialog.isShowing()) {
             m_progressDialog.dismiss();
         }
+    }
+
+    private ProgressDialog newProgressDialog(Context context, CharSequence title, CharSequence message, boolean indeterminate, boolean cancelable,  DialogInterface.OnCancelListener cancelListener) {
+        ProgressDialog dialog = new ProgressDialog(context, ProgressDialog.THEME_HOLO_DARK);
+        dialog.setTitle(title);
+        dialog.setMessage(message);
+        dialog.setIndeterminate(indeterminate);
+        dialog.setCancelable(cancelable);
+        dialog.setOnCancelListener(cancelListener);
+        dialog.show();
+
+        return  dialog;
     }
 
     public void setClientViewMessage(String message) {
@@ -100,19 +114,7 @@ public class MainActivity extends Activity {
         selectBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                    intent.setType("*/*");
-                    intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                    intent.addCategory(Intent.CATEGORY_OPENABLE);
-                    startActivityForResult(intent, CHOOSE_FILE_RESULT_CODE);
-                } else {
-                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);//ACTION_OPEN_DOCUMENT
-                    intent.setType("*/*");
-                    intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                    intent.addCategory(Intent.CATEGORY_OPENABLE);
-                    startActivityForResult(intent, CHOOSE_FILE_RESULT_CODE);
-                }
+                MainActivity.this.fileTypeSelectDialog();
             }
         });
 
@@ -208,7 +210,7 @@ public class MainActivity extends Activity {
     }
 
     private void exit() {
-        new AlertDialog.Builder(MainActivity.this).setTitle(getResources().getString(R.string.warningTitle)).setMessage(getResources().getString(R.string.warningMsg)).setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+        new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_DARK).setTitle(getResources().getString(R.string.warningTitle)).setMessage(getResources().getString(R.string.warningMsg)).setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 finish();
@@ -318,7 +320,7 @@ public class MainActivity extends Activity {
     public void viewFile(String file) {
         m_receivedFile = file;
         String fileName = Utility.getFileName(file);
-        new AlertDialog.Builder(MainActivity.this).setTitle(getResources().getString(R.string.fileReceived)).setMessage("\"" +fileName + "\"" + " " + getResources().getString(R.string.viewFileAlert)).setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+        new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_DARK).setTitle(getResources().getString(R.string.fileReceived)).setMessage("\"" +fileName + "\"" + " " + getResources().getString(R.string.viewFileAlert)).setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Intent intent = new Intent();
@@ -343,5 +345,52 @@ public class MainActivity extends Activity {
                 //
             }
         }).show();
+    }
+
+    public void fileTypeSelectDialog() {
+        AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_DARK);
+        ab.setMessage(getResources().getString(R.string.fileChooseMsg));
+        ab.setPositiveButton(getResources().getString(R.string.fileTypeOther), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //
+                //long s = maxByteArraySize();
+                //Log.d(MainActivity.TAG, String.valueOf(s));
+            }
+        });
+
+        ab.setNeutralButton(getResources().getString(R.string.fileTypeVideo), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("video/*");
+                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                startActivityForResult(intent, CHOOSE_FILE_RESULT_CODE);
+            }
+        });
+
+        ab.setNegativeButton(getResources().getString(R.string.fileTypeImage), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                startActivityForResult(intent, CHOOSE_FILE_RESULT_CODE);
+            }
+        });
+
+        ab.show();
+    }
+
+    public long maxByteArraySize() {
+        int size = Integer.MAX_VALUE;
+        while(--size > 0) try {
+            byte[]  b = new byte[10485760*5];
+            byte[]  b2 = new byte[10485760*5];
+            break;
+        } catch(Throwable t) {}
+        return size;
     }
 }

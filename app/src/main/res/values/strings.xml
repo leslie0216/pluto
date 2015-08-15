@@ -41,4 +41,8 @@
     <string name="targetIsBusy">Target is busy! Please try again later.</string>
     <string name="fileReceived">File Received</string>
     <string name="viewFileAlert">is received. Do you want to view it now?</string>
+    <string name="fileChooseMsg">Please choose a file type : </string>
+    <string name="fileTypeImage">Image</string>
+    <string name="fileTypeVideo">Video</string>
+    <string name="fileTypeOther">Other files</string>
 </resources>
