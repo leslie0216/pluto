@@ -162,7 +162,7 @@ public class ServerActivity extends Activity{
     }
 
     private void exit() {
-        new AlertDialog.Builder(ServerActivity.this, AlertDialog.THEME_HOLO_DARK).setTitle(getResources().getString(R.string.warningTitle)).setMessage(getResources().getString(R.string.warningMsg)).setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+        new AlertDialog.Builder(ServerActivity.this, AlertDialog.THEME_HOLO_DARK).setTitle(getResources().getString(R.string.exitTitle)).setMessage(getResources().getString(R.string.exitMsg)).setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 finish();

@@ -25,7 +25,7 @@
     <string name="connectingTo">Connecting to</string>
     <string name="bluetoothEnableFailed">Bluetooth is not enable on your device</string>
     <string name="bluetoothNotSupport">Bluetooth not supported on device</string>
-    <string name="warningMsg">Do you want to exit?</string>
+    <string name="exitMsg">Are you sure you want to exit this app?</string>
     <string name="warningTitle">Warning</string>
     <string name="bluetoothSeverNotFound">Can not find server!</string>
     <string name="inaccurate">Inaccurate</string>
@@ -45,4 +45,5 @@
     <string name="fileTypeImage">Image</string>
     <string name="fileTypeVideo">Video</string>
     <string name="fileTypeOther">Other files</string>
+    <string name="exitTitle">Exit</string>
 </resources>

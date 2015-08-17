@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
     public void showProgressDialog(CharSequence title,CharSequence message, boolean indeterminate, boolean cancelable) {
         stopProgressDialog();
         //m_progressDialog = ProgressDialog.show(this, title, message, indeterminate, cancelable);
-        m_progressDialog = newProgressDialog(this, title, message, indeterminate, cancelable, null);
+        m_progressDialog = newRingProgressDialog(this, title, message, indeterminate, cancelable, null);
     }
 
     public void stopProgressDialog() {
@@ -82,7 +82,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private ProgressDialog newProgressDialog(Context context, CharSequence title, CharSequence message, boolean indeterminate, boolean cancelable,  DialogInterface.OnCancelListener cancelListener) {
+    private ProgressDialog newRingProgressDialog(Context context, CharSequence title, CharSequence message, boolean indeterminate, boolean cancelable,  DialogInterface.OnCancelListener cancelListener) {
         ProgressDialog dialog = new ProgressDialog(context, ProgressDialog.THEME_HOLO_DARK);
         dialog.setTitle(title);
         dialog.setMessage(message);
@@ -210,7 +210,7 @@ public class MainActivity extends Activity {
     }
 
     private void exit() {
-        new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_DARK).setTitle(getResources().getString(R.string.warningTitle)).setMessage(getResources().getString(R.string.warningMsg)).setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+        new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_DARK).setTitle(getResources().getString(R.string.exitTitle)).setMessage(getResources().getString(R.string.exitMsg)).setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 finish();

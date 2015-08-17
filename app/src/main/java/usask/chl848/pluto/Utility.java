@@ -261,4 +261,32 @@ public class Utility {
 
         return rt;
     }
+
+    public static String readLine(InputStream inputStream) throws IOException {
+        char buf[] = new char[256];
+        int room = buf.length;
+        int offset = 0;
+        int c;
+loop:   while (true) {
+            switch (c = inputStream.read()) {
+                case -1:
+                case '\n':
+                    break loop;
+                default:
+                    if (--room < 0) {
+                        char[] lineBuffer = buf;
+                        buf = new char[offset + 256];
+                        room = buf.length - offset - 1;
+                        System.arraycopy(lineBuffer, 0, buf, 0, offset);
+                    }
+
+                    buf[offset++] = (char)c;
+                    break;
+            }
+        }
+        if ((c==-1)&&(offset==0))
+            return null;
+
+        return String.copyValueOf(buf, 0, offset);
+    }
 }

@@ -7,6 +7,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,30 +50,44 @@ public class FileTransferService extends IntentService {
                 PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - port - " + port);
                 socket.bind(null);
                 socket.connect((new InetSocketAddress(host, port)), SOCKET_TIMEOUT);
-
                 PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client socket - " + socket.isConnected());
 
-                OutputStream stream = socket.getOutputStream();
+                String fileName = Utility.getFileName(filePath);
+                File file = new File(filePath);
+                String head = "filelen="+file.length()+";filename="+fileName+"\n";
+                OutputStream outputStream = socket.getOutputStream();
+                PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client send head : " + head);
+                outputStream.write(head.getBytes());
 
-                WiFiDirectObject wiFiDirectObject = new WiFiDirectObject();
-                //String filePath = Utility.getRealFilePath(context, Uri.parse(fileUri));
-
-                PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client file ready to send : " + filePath);
-                wiFiDirectObject.init(Utility.getFileName(filePath), filePath);
-                stream.write(Utility.serialize(wiFiDirectObject));
-
-                /*
-                ContentResolver cr = context.getContentResolver();
-                InputStream is = null;
-                try {
-                    is = cr.openInputStream(Uri.parse(fileUri));
-                } catch (FileNotFoundException e) {
-                    Log.d(MainActivity.TAG, e.toString());
+                InputStream inputStream = socket.getInputStream();
+                String response = Utility.readLine(inputStream);
+                PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client received response : " + response);
+                if (response != null) {
+                    String rt = response.substring(response.indexOf("=") + 1);
+                    if (rt.equalsIgnoreCase("true")) {
+                        PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client sending file");
+                        byte[] buffer = new byte[4096];
+                        FileInputStream fis = new FileInputStream(file);
+                        BufferedInputStream bis = new BufferedInputStream(fis);
+                        int bytesRead;
+                        while (true) {
+                            bytesRead = bis.read(buffer, 0, buffer.length);
+                            if (bytesRead == -1) {
+                                break;
+                            }
+                            outputStream.write(buffer, 0, bytesRead);
+                            outputStream.flush();
+                        }
+                        PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client: Data written done");
+                        fis.close();
+                        bis.close();
+                    }
                 }
-                Utility.copyFile(is, stream);
-                */
-                stream.close();
-                PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client: Data written done");
+
+                inputStream.close();
+                outputStream.close();
+                socket.close();
+
                 Intent i = new Intent(MainActivity.REQUEST_REMOVE_BALL_ACTION);
                 sendBroadcast(i);
             } catch (IOException e) {
