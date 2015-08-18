@@ -23,12 +23,15 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import java.io.File;
+
 
 public class MainActivity extends Activity {
     protected static final int CHOOSE_FILE_RESULT_CODE = 20;
     protected static final int REQUEST_ENABLE_BLUETOOTH = 21;
     public static final String REQUEST_DISCONNECT_ACTION = "usask.chl848.pluto.DISCONNECT_ACTION";
     public static final String REQUEST_REMOVE_BALL_ACTION = "usask.chl848.pluto.REMOVE_BALL__ACTION";
+    public static final String REQUEST_UPDATE_PROGRESS = "usask.chl848.pluto.UPDATE_PROGRESS";
 
     public static final String TAG = "USaskPluto";
 
@@ -70,15 +73,20 @@ public class MainActivity extends Activity {
         }
     };
 
-    public void showProgressDialog(CharSequence title,CharSequence message, boolean indeterminate, boolean cancelable) {
+    public void showProgressDialog(CharSequence title,CharSequence message, boolean indeterminate, boolean cancelable, boolean isRing, int maxValue) {
         stopProgressDialog();
         //m_progressDialog = ProgressDialog.show(this, title, message, indeterminate, cancelable);
-        m_progressDialog = newRingProgressDialog(this, title, message, indeterminate, cancelable, null);
+        if (isRing) {
+            m_progressDialog = newRingProgressDialog(this, title, message, indeterminate, cancelable, null);
+        } else {
+            m_progressDialog = newBarProgressDialog(this, title, message, indeterminate, cancelable, null, maxValue);
+        }
     }
 
     public void stopProgressDialog() {
         if (m_progressDialog != null && m_progressDialog.isShowing()) {
             m_progressDialog.dismiss();
+            Utility.progressValue = 0;
         }
     }
 
@@ -92,6 +100,41 @@ public class MainActivity extends Activity {
         dialog.show();
 
         return  dialog;
+    }
+
+    private ProgressDialog newBarProgressDialog(Context context, CharSequence title, CharSequence message, boolean indeterminate, boolean cancelable,  DialogInterface.OnCancelListener cancelListener, int maxValue) {
+        ProgressDialog dialog = new ProgressDialog(context, ProgressDialog.THEME_HOLO_DARK);
+        dialog.setTitle(title);
+        dialog.setMessage(message);
+        dialog.setIndeterminate(indeterminate);
+        dialog.setCancelable(cancelable);
+        dialog.setOnCancelListener(cancelListener);
+        dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        dialog.setProgress(0);
+        dialog.setMax(maxValue);
+        dialog.show();
+
+        return  dialog;
+    }
+
+    public void updateProgressDialog() {
+        if (m_progressDialog.isShowing()) {
+            m_progressDialog.setProgress(Utility.progressValue);
+        }
+    }
+
+    public int getProgressDialogMaxValue() {
+        if (m_progressDialog != null) {
+            return m_progressDialog.getMax();
+        }
+
+        return -1;
+    }
+
+    public void setProgressDialogMaxValue(int value) {
+        if (m_progressDialog != null) {
+            m_progressDialog.setMax(value);
+        }
     }
 
     public void setClientViewMessage(String message) {
@@ -226,7 +269,8 @@ public class MainActivity extends Activity {
 
     public void sendFile() {
         if (!m_wifiDirectData.getFilePath().isEmpty()) {
-            showProgressDialog("", getResources().getString(R.string.sending), true, false);
+            File f = new File(m_wifiDirectData.getFilePath());
+            showProgressDialog("", getResources().getString(R.string.sending), false, false, false,(int)f.length());
             PlutoLogger.Instance().write("MainActivity::sendFile() - filePath : " + m_wifiDirectData.getFilePath());
             Intent serviceIntent = new Intent(this, FileTransferService.class);
             serviceIntent.setAction(FileTransferService.ACTION_SEND_FILE);
@@ -283,7 +327,7 @@ public class MainActivity extends Activity {
             m_wifiDirectData.setRemoteDeviceAddress(remoteAddress);
             setIsInvited(false);
 
-            showProgressDialog("", getResources().getString(R.string.finding) + " : " + m_wifiDirectData.getRemoteDeviceAddress(), true, false);
+            showProgressDialog("", getResources().getString(R.string.finding) + " : " + m_wifiDirectData.getRemoteDeviceAddress(), true, false, true, 0);
             m_wifiDirectData.discoverPeers();
         } else {
             showToast(getResources().getString(R.string.p2p_off_warning));
@@ -353,9 +397,6 @@ public class MainActivity extends Activity {
         ab.setPositiveButton(getResources().getString(R.string.fileTypeOther), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //
-                //long s = maxByteArraySize();
-                //Log.d(MainActivity.TAG, String.valueOf(s));
             }
         });
 
@@ -382,15 +423,5 @@ public class MainActivity extends Activity {
         });
 
         ab.show();
-    }
-
-    public long maxByteArraySize() {
-        int size = Integer.MAX_VALUE;
-        while(--size > 0) try {
-            byte[]  b = new byte[10485760*5];
-            byte[]  b2 = new byte[10485760*5];
-            break;
-        } catch(Throwable t) {}
-        return size;
     }
 }

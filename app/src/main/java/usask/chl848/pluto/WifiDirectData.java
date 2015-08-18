@@ -80,6 +80,7 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
         m_intentFilter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
         m_intentFilter.addAction(MainActivity.REQUEST_DISCONNECT_ACTION);
         m_intentFilter.addAction(MainActivity.REQUEST_REMOVE_BALL_ACTION);
+        m_intentFilter.addAction(MainActivity.REQUEST_UPDATE_PROGRESS);
 
         m_wifiP2pManager = (WifiP2pManager)m_activity.getSystemService(Context.WIFI_P2P_SERVICE);
         m_channel = m_wifiP2pManager.initialize(m_activity, m_activity.getMainLooper(), this);
@@ -249,7 +250,7 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
             if (device.deviceAddress.equals(getRemoteDeviceAddress()) && device.status == WifiP2pDevice.AVAILABLE && !m_activity.getIsInvited()) {
                 PlutoLogger.Instance().write("WifiDirectData::onPeersAvailable() - target device " + getRemoteDeviceAddress() + " found");
                 m_activity.stopProgressDialog();
-                m_activity.showProgressDialog("", m_activity.getResources().getString(R.string.connectingTo) + " " + getRemoteDeviceAddress(), true, false);
+                m_activity.showProgressDialog("", m_activity.getResources().getString(R.string.connectingTo) + " " + getRemoteDeviceAddress(), true, false, true, 0);
                 m_activity.showToast("target device found");
                 m_activity.setIsInvited(true);
                 connect();

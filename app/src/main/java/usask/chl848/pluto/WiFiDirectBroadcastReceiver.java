@@ -96,6 +96,9 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
             PlutoLogger.Instance().write("WiFiDirectBroadcastReceiver()::onReceive() - User request remove ball");
             m_activity.removeBall();
+        } else if (MainActivity.REQUEST_UPDATE_PROGRESS.equals(action)) {
+
+            m_activity.updateProgressDialog();
         }
     }
 }

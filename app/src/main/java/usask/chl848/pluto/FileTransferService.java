@@ -54,7 +54,8 @@ public class FileTransferService extends IntentService {
 
                 String fileName = Utility.getFileName(filePath);
                 File file = new File(filePath);
-                String head = "filelen="+file.length()+";filename="+fileName+"\n";
+                long fileLen = file.length();
+                String head = "filelen="+fileLen+";filename="+fileName+"\n";
                 OutputStream outputStream = socket.getOutputStream();
                 PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client send head : " + head);
                 outputStream.write(head.getBytes());
@@ -66,10 +67,13 @@ public class FileTransferService extends IntentService {
                     String rt = response.substring(response.indexOf("=") + 1);
                     if (rt.equalsIgnoreCase("true")) {
                         PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client sending file");
+
                         byte[] buffer = new byte[4096];
                         FileInputStream fis = new FileInputStream(file);
                         BufferedInputStream bis = new BufferedInputStream(fis);
-                        int bytesRead;
+                        int bytesRead = 0;
+                        int progress = bytesRead;
+                        Utility.progressValue = progress;
                         while (true) {
                             bytesRead = bis.read(buffer, 0, buffer.length);
                             if (bytesRead == -1) {
@@ -77,6 +81,11 @@ public class FileTransferService extends IntentService {
                             }
                             outputStream.write(buffer, 0, bytesRead);
                             outputStream.flush();
+                            progress += bytesRead;
+                            Utility.progressValue = progress;
+
+                            Intent updateIntent = new Intent(MainActivity.REQUEST_UPDATE_PROGRESS);
+                            sendBroadcast(updateIntent);
                         }
                         PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client: Data written done");
                         fis.close();

@@ -26,6 +26,8 @@ import java.net.URISyntaxException;
  */
 public class Utility {
 
+    public static int progressValue;
+
     public static boolean copyFile(InputStream inputStream, OutputStream out) {
         byte buf[] = new byte[1024];
         int len;

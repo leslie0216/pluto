@@ -23,7 +23,7 @@ import java.net.Socket;
 /**
  * Run in Server side for receiving file from client
  */
-public class FileServerAsyncTask extends AsyncTask<Void, Void, String> {
+public class FileServerAsyncTask extends AsyncTask<Void, Integer, String> {
     private Context m_context;
 
     public FileServerAsyncTask(Context context) {
@@ -79,9 +79,12 @@ public class FileServerAsyncTask extends AsyncTask<Void, Void, String> {
                 if (rt) {
                     PlutoLogger.Instance().write("FileServerAsyncTask::doInBackground() - server: copying files");
                     byte[] buffer = new byte[4096];
-                    int bytesRead;
+                    int bytesRead = 0;
+                    int progress = bytesRead;
+                    Utility.progressValue = progress;
                     FileOutputStream fos = new FileOutputStream(file);
                     BufferedOutputStream bos = new BufferedOutputStream(fos);
+                    publishProgress(progress, Integer.parseInt(fileLen));
                     while (true){
                         bytesRead = inputStream.read(buffer, 0, buffer.length);
                         if (bytesRead == -1) {
@@ -89,6 +92,9 @@ public class FileServerAsyncTask extends AsyncTask<Void, Void, String> {
                         }
                         bos.write(buffer, 0, bytesRead);
                         bos.flush();
+
+                        progress += bytesRead;
+                        publishProgress(progress, Integer.parseInt(fileLen));
                     }
                     filePath = file.getAbsolutePath();
                     bos.close();
@@ -121,7 +127,19 @@ public class FileServerAsyncTask extends AsyncTask<Void, Void, String> {
     }
 
     @Override
+    protected void onProgressUpdate(Integer... values) {
+        if (values[0] == 0) {
+            ((MainActivity)m_context).showProgressDialog("", m_context.getResources().getString(R.string.receiving), false, false, false, values[1]);
+            //((MainActivity)m_context).setProgressDialogMaxValue(values[1]);
+        }
+
+        Utility.progressValue = values[0];
+        ((MainActivity)m_context).updateProgressDialog();
+    }
+
+
+    @Override
     protected void onPreExecute() {
-        ((MainActivity)m_context).showProgressDialog("", m_context.getResources().getString(R.string.receiving), true, false);
+
     }
 }
