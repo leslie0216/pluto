@@ -2,6 +2,7 @@ package usask.chl848.pluto;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -180,6 +181,13 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
             @Override
             public void onSuccess() {
                 // WiFiDirectBroadcastReceiver will notify us. Ignore for now.
+                DialogInterface.OnCancelListener listener = new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        m_wifiP2pManager.cancelConnect(m_channel,null);
+                    }
+                };
+                m_activity.showProgressDialog(m_activity.getResources().getString(R.string.cancelProgressDialog), m_activity.getResources().getString(R.string.connectingTo) + " " + getRemoteDeviceAddress(), true, true, listener, true, 0);
                 m_remote_device_address = "";
             }
 
@@ -250,10 +258,14 @@ public class WifiDirectData implements WifiP2pManager.ChannelListener, WifiP2pMa
             if (device.deviceAddress.equals(getRemoteDeviceAddress()) && device.status == WifiP2pDevice.AVAILABLE && !m_activity.getIsInvited()) {
                 PlutoLogger.Instance().write("WifiDirectData::onPeersAvailable() - target device " + getRemoteDeviceAddress() + " found");
                 m_activity.stopProgressDialog();
-                m_activity.showProgressDialog("", m_activity.getResources().getString(R.string.connectingTo) + " " + getRemoteDeviceAddress(), true, false, true, 0);
-                m_activity.showToast("target device found");
-                m_activity.setIsInvited(true);
-                connect();
+                if (!m_activity.m_clientView.isRemotePhoneBusy(getRemoteDeviceAddress())) {
+                    m_activity.showToast("target device found");
+                    m_activity.setIsInvited(true);
+                    connect();
+                } else {
+                    PlutoLogger.Instance().write("WifiDirectData::onPeersAvailable() - target device is busy");
+                    m_activity.showToast(m_activity.getResources().getString(R.string.targetIsBusy));
+                }
                 break;
             }
         }

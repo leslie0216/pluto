@@ -46,4 +46,5 @@
     <string name="fileTypeVideo">Video</string>
     <string name="fileTypeOther">Other files</string>
     <string name="exitTitle">Exit</string>
+    <string name="cancelProgressDialog">Press back to cancel</string>
 </resources>

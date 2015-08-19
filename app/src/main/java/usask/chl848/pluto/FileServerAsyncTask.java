@@ -78,7 +78,7 @@ public class FileServerAsyncTask extends AsyncTask<Void, Integer, String> {
 
                 if (rt) {
                     PlutoLogger.Instance().write("FileServerAsyncTask::doInBackground() - server: copying files");
-                    byte[] buffer = new byte[4096];
+                    byte[] buffer = new byte[524288];
                     int bytesRead = 0;
                     int progress = bytesRead;
                     Utility.progressValue = progress;
@@ -129,7 +129,7 @@ public class FileServerAsyncTask extends AsyncTask<Void, Integer, String> {
     @Override
     protected void onProgressUpdate(Integer... values) {
         if (values[0] == 0) {
-            ((MainActivity)m_context).showProgressDialog("", m_context.getResources().getString(R.string.receiving), false, false, false, values[1]);
+            ((MainActivity)m_context).showProgressDialog("", m_context.getResources().getString(R.string.receiving), false, false, null, false, values[1]);
             //((MainActivity)m_context).setProgressDialogMaxValue(values[1]);
         }
 

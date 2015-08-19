@@ -73,13 +73,13 @@ public class MainActivity extends Activity {
         }
     };
 
-    public void showProgressDialog(CharSequence title,CharSequence message, boolean indeterminate, boolean cancelable, boolean isRing, int maxValue) {
+    public void showProgressDialog(CharSequence title,CharSequence message, boolean indeterminate, boolean cancelable,  DialogInterface.OnCancelListener cancelListener, boolean isRing, int maxValue) {
         stopProgressDialog();
         //m_progressDialog = ProgressDialog.show(this, title, message, indeterminate, cancelable);
         if (isRing) {
-            m_progressDialog = newRingProgressDialog(this, title, message, indeterminate, cancelable, null);
+            m_progressDialog = newRingProgressDialog(this, title, message, indeterminate, cancelable, cancelListener);
         } else {
-            m_progressDialog = newBarProgressDialog(this, title, message, indeterminate, cancelable, null, maxValue);
+            m_progressDialog = newBarProgressDialog(this, title, message, indeterminate, cancelable, cancelListener, maxValue);
         }
     }
 
@@ -270,7 +270,7 @@ public class MainActivity extends Activity {
     public void sendFile() {
         if (!m_wifiDirectData.getFilePath().isEmpty()) {
             File f = new File(m_wifiDirectData.getFilePath());
-            showProgressDialog("", getResources().getString(R.string.sending), false, false, false,(int)f.length());
+            showProgressDialog("", getResources().getString(R.string.sending), false, false, null, false,(int)f.length());
             PlutoLogger.Instance().write("MainActivity::sendFile() - filePath : " + m_wifiDirectData.getFilePath());
             Intent serviceIntent = new Intent(this, FileTransferService.class);
             serviceIntent.setAction(FileTransferService.ACTION_SEND_FILE);
@@ -327,7 +327,9 @@ public class MainActivity extends Activity {
             m_wifiDirectData.setRemoteDeviceAddress(remoteAddress);
             setIsInvited(false);
 
-            showProgressDialog("", getResources().getString(R.string.finding) + " : " + m_wifiDirectData.getRemoteDeviceAddress(), true, false, true, 0);
+
+
+            showProgressDialog("", getResources().getString(R.string.finding) + " : " + m_wifiDirectData.getRemoteDeviceAddress(), true, false, null, true, 0);
             m_wifiDirectData.discoverPeers();
         } else {
             showToast(getResources().getString(R.string.p2p_off_warning));

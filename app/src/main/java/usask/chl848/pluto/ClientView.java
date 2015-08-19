@@ -513,6 +513,14 @@ public class ClientView extends View {
         return m_remotePhones;
     }
 
+    public boolean isRemotePhoneBusy(String macAddress) {
+        for (RemotePhoneInfo phoneInfo : m_remotePhones) {
+            return  phoneInfo.m_isBusy;
+        }
+
+        return true;
+    }
+
     public void removePhones(ArrayList<RemotePhoneInfo> phoneInfos) {
         m_remotePhones.removeAll(phoneInfos);
     }

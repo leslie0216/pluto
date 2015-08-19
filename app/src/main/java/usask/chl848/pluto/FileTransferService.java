@@ -68,7 +68,7 @@ public class FileTransferService extends IntentService {
                     if (rt.equalsIgnoreCase("true")) {
                         PlutoLogger.Instance().write("FileTransferService::onHandleIntent() - Client sending file");
 
-                        byte[] buffer = new byte[4096];
+                        byte[] buffer = new byte[524288];//500k
                         FileInputStream fis = new FileInputStream(file);
                         BufferedInputStream bis = new BufferedInputStream(fis);
                         int bytesRead = 0;
